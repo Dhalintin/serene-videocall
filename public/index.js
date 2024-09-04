@@ -112,9 +112,6 @@ function addParticipant(userId, username, image){
 
 
 const chatForm = document.getElementById('msgForm');
-// const userData = JSON.parse(localStorage.getItem('userData'));
-// const username = userData.username
-// console.log(username)
 
 chatForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -159,3 +156,11 @@ socket.on('receiveMessage', (chatMessage) => {
 function addMessage (){
 
 }
+
+
+const endButton = document.getElementById('end-button')
+
+endButton.addEventListener('click', ()=> {
+  // alert('20')
+  window.location.href = 'about:blank';
+})
