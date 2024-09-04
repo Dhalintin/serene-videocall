@@ -21,7 +21,6 @@ async function loadCall (email, roomId){
         if(response.ok){
             const data = await response.json({});
             const userData = {
-                authToken: data.token,
                 username: data.data.name,
                 type: data.data.type,
                 userId: data.data._id,

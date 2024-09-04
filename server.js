@@ -3,6 +3,7 @@ const http = require('http');
 const { app, setupPeerServer } = require('./app'); // Import the Express app and PeerJS setup function
 const { Server } = require('socket.io');
 const WebSocket = require('ws');
+const { userInfo } = require('os');
 
 // Create HTTP server and integrate Express app
 const server = http.createServer(app);
