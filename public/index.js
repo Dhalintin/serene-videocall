@@ -1,8 +1,7 @@
-const socket = io('http://localhost:4000');
+const socket = io('/');
 const peer = new Peer();
 let myVideoStream;
 let myId;
-let chatRoomId;
 var videoGrid = document.getElementById('videoDiv')
 var myvideo = document.getElementById('myVideo');
 myvideo.muted = true;
@@ -23,7 +22,6 @@ navigator.mediaDevices.getUserMedia({
       alert(err)
     })
     call.on("close", () => {
-        console.log(vid);
         vid.remove();
     })
     peerConnections[call.peer] = call;
@@ -39,7 +37,6 @@ peer.on('error' , (err)=>{
   alert(err.type);
 });
 socket.on('userJoined' , id=>{
-  console.log("new user joined")
   const call  = peer.call(id , myVideoStream);
   const vid = document.createElement('video');
   call.on('error' , (err)=>{
@@ -79,11 +76,11 @@ async function getCallDetails(){
         });
         if(response.ok){
             const data = await response.json({});
-            const calldata = data.data
+            const calldata = data.data;
 
             addParticipant(calldata.professionalId._id, calldata.professionalId.name, calldata.professionalId.image,)
             addParticipant(calldata.userId._id, calldata.userId.username, calldata.userId.avatar)
-            getChat(calldata.professionalId._id, calldata.userId._id)
+            // getChat(calldata.professionalId._id, calldata.userId._id)
         }
 
     } catch (error) {
@@ -124,24 +121,24 @@ chatForm.addEventListener('submit', (e) => {
   }
 })
 
-async function getChat(userId1, userId2){
-  try{
-    const response = await fetch(`https://serene-lbyk.onrender.com/api/v1/chat/getChat`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ userId1, userId2 })
-        });
-        if(response.ok){
-            const data = await response.json({});
-            const chatMessages = data.data
-            chatRoomId = chatMessages[0].roomId;
-        }
-  }catch(error) {
-    console.error('Error during fetch:', error);
-}
-}
+// async function getChat(userId1, userId2){
+//   try{
+//     const response = await fetch(`https://serene-lbyk.onrender.com/api/v1/chat/getChat`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({ userId1, userId2 })
+//         });
+//         if(response.ok){
+//             const data = await response.json({});
+//             const chatMessages = data.data
+//             chatRoomId = chatMessages[0].roomId;
+//         }
+//   }catch(error) {
+//     console.error('Error during fetch:', error);
+// }
+// }
 
 socket.on('receiveMessage', (chatMessage) => {
   // <img src="./images/therapist.jfif" alt="" class="rounded-full w-10 h-10 object-fit"></img>
@@ -154,13 +151,32 @@ socket.on('receiveMessage', (chatMessage) => {
   <div class="text-xs text-[#A8A8A8] font-medium leading-tight flex items-center">${chatMessage.time}</div>
 </div>`
   chatSection.innerHTML += message
-  // console.log(`[${chatMessage.time}] ${chatMessage.username}: ${chatMessage.message}`);
 });
 
 function addMessage (){
 
 }
 
+
+
+function countdown(minutes) {
+  let seconds = minutes * 60;
+  // const interval = setInterval(() => {
+  //   const minutes = Math.floor(seconds / 60);
+  //   const seconds = seconds % 60;
+  //   document.getElementById('min').textContent = minutes.toString().padStart(2, '0');
+  //   document.getElementById('sec').textContent = seconds.toString().padStart(2, '0');
+
+  //   if (seconds <= 0) {
+  //     clearInterval(interval);
+  //     document.getElementById('countdown').textContent = "Time's up!";
+  //   }
+  //   seconds--;
+  // }, 1000);
+}
+
+// Start the 30-minute countdown
+countdown(30);
 
 const endButton = document.getElementById('end-button')
 
