@@ -42,10 +42,14 @@ io.on('connection', (socket) => {
     socket.broadcast.to(room).emit('userJoined', id);
 
     // Listen for chat messages
-    socket.on('sendMessage', (message, username) => {
-      const timestamp = new Date().toLocaleTimeString();
+    socket.on('sendMessage', (message) => {
+      const timestamp = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
       const chatMessage = {
-        username,
+        // username,
         message,
         time: timestamp
       };
