@@ -17,12 +17,12 @@ function setupPeerServer(server) {
 }
 
 // Routes
-// app.get('/', (req, res) => {
-//   res.redirect(`/${uuidv4()}`); // Generate and send a unique room ID
-// });
+app.get('/', (req, res) => {
+  res.render('login');
+});
 
 app.get('/:room', (req, res) => {
-  res.render('index', { RoomId: req.params.room }); // Render the chat room
+  res.render('index', { RoomId: req.params.room });
 });
 
 module.exports = { app, setupPeerServer };
