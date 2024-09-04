@@ -2,6 +2,7 @@ const socket = io('http://localhost:4000');
 const peer = new Peer();
 let myVideoStream;
 let myId;
+let chatRoomId;
 var videoGrid = document.getElementById('videoDiv')
 var myvideo = document.getElementById('myVideo');
 myvideo.muted = true;
@@ -82,7 +83,7 @@ async function getCallDetails(){
 
             addParticipant(calldata.professionalId._id, calldata.professionalId.name, calldata.professionalId.image,)
             addParticipant(calldata.userId._id, calldata.userId.username, calldata.userId.avatar)
-            // getChat(calldata.professionalId._id, calldata.userId._id)
+            getChat(calldata.professionalId._id, calldata.userId._id)
         }
 
     } catch (error) {
@@ -118,39 +119,42 @@ chatForm.addEventListener('submit', (e) => {
 
   const msg = e.target.msg.value;
   if(msg !== ''){
-    // socket.emit('sendMessage', msg, username);
-    addMessage(message, messageId, time);
+    socket.emit('sendMessage', msg);
     e.target.elements.msg.value = '';
   }
 })
-// 
 
-// async function getChat(userId1, userId2){
-//   try{
-//     const response = await fetch(`https://serene-lbyk.onrender.com/api/v1/chat/getChat`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify({ userId1, userId2 })
-//         });
-//         if(response.ok){
-//             const data = await response.json({});
-//             const chatMessages = data.data
-//             console.log(chatMessages)
-
-//             // addParticipant(calldata.professionalId._id, calldata.professionalId.name, calldata.professionalId.image,)
-//             // addParticipant(calldata.userId._id, calldata.userId.username, calldata.userId.avatar)
-//             // getChat(calldata.professionalId._id, calldata.userId._id)
-//         }
-//   }catch(error) {
-//     console.error('Error during fetch:', error);
-// }
-// }
+async function getChat(userId1, userId2){
+  try{
+    const response = await fetch(`https://serene-lbyk.onrender.com/api/v1/chat/getChat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId1, userId2 })
+        });
+        if(response.ok){
+            const data = await response.json({});
+            const chatMessages = data.data
+            chatRoomId = chatMessages[0].roomId;
+        }
+  }catch(error) {
+    console.error('Error during fetch:', error);
+}
+}
 
 socket.on('receiveMessage', (chatMessage) => {
-  console.log(chatMessage)
-  console.log(`[${chatMessage.time}] ${chatMessage.username}: ${chatMessage.message}`);
+  // <img src="./images/therapist.jfif" alt="" class="rounded-full w-10 h-10 object-fit"></img>
+  const message = `<div class="flex px-3 py-3 mt-1">
+  <div class="ml-1 mr-2 w-10"></div>
+  <div class="text-white w-2/3 bg-[#191919] p-1 rounded-lg mr-3 pl-3 pt-2">
+      <div class="font-normal text-[#AFAFAF] text-xs leading-tight pb-1"></div>
+      <div class="font-medium text-xs text-[#C4C8DA] leading-tight">${chatMessage.message}</div>
+  </div>
+  <div class="text-xs text-[#A8A8A8] font-medium leading-tight flex items-center">${chatMessage.time}</div>
+</div>`
+  chatSection.innerHTML += message
+  // console.log(`[${chatMessage.time}] ${chatMessage.username}: ${chatMessage.message}`);
 });
 
 function addMessage (){
@@ -161,6 +165,6 @@ function addMessage (){
 const endButton = document.getElementById('end-button')
 
 endButton.addEventListener('click', ()=> {
-  // alert('20')
-  window.location.href = 'about:blank';
+  alert('Call has ended, closing the window');
+  window.close();
 })
