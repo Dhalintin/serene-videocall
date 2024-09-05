@@ -10,7 +10,7 @@ var videoGrid = document.getElementById('videoDiv')
 var myvideo = document.getElementById('myVideo');
 let myName = document.getElementById('myname');
 let usersname = document.getElementById('usersname');
-myvideo.muted = true;
+myvideo.muted = false;
 const peerConnections = {}
 const timerElement = document.getElementById('timer');
 let timeLeft = 30 * 60;
@@ -33,7 +33,6 @@ function startTimer() {
 
 //Handling other parts
 async function getCallDetails(){
-  console.log(roomID)
   try{
     const response = await fetch(`https://serene-lbyk.onrender.com/api/v1/session/${roomID}`, {
             method: 'GET',
@@ -48,30 +47,30 @@ async function getCallDetails(){
             addParticipant(calldata.professionalId._id, calldata.professionalId.name, calldata.professionalId.image);
             addParticipant(calldata.userId._id, calldata.userId.username, calldata.userId.avatar);
 
-            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            if(userInfo){
-              username = userInfo.username;
-              type = userInfo.type;
-              userId = userInfo.userId
-              pic = calldata.professionalId.image;
-              userDetails = {
-                username, userId, pic
-              }
-            }else{
-              username = calldata.userId.username;
-              userId = calldata.userId._id;
-              pic = calldata.userId.avatar;
-              userDetails = {
-                username, userId, pic
-              }
-            }
+            // const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            // if(userInfo){
+            //   username = userInfo.username;
+            //   type = userInfo.type;
+            //   userId = userInfo.userId
+            //   pic = calldata.professionalId.image;
+            //   userDetails = {
+            //     username, userId, pic
+            //   }
+            // }else{
+            //   username = calldata.userId.username;
+            //   userId = calldata.userId._id;
+            //   pic = calldata.userId.avatar;
+            //   userDetails = {
+            //     username, userId, pic
+            //   }
+            // }
 
-            myName.textContent = username
-            if(username !== calldata.professionalId.name){
-              usersname.textContent = calldata.professionalId.name
-            }else{
-              usersname.textContent = calldata.userId.username
-            }
+            // myName.textContent = username
+            // if(username !== calldata.professionalId.name){
+            //   usersname.textContent = calldata.professionalId.name
+            // }else{
+            //   usersname.textContent = calldata.userId.username
+            // }
         }
 
     } catch (error) {
@@ -82,35 +81,56 @@ async function getCallDetails(){
 getCallDetails();
 
 navigator.mediaDevices.getUserMedia({
-  video:true,
-  audio:true
-}).then((stream)=>{
+  video: true,  // Enable video
+  audio: true   // Enable audio
+}).then((stream) => {
+  // Assign the local stream to `myVideoStream`
   myVideoStream = stream;
-  addVideo(myvideo , stream);
-  peer.on('call' , call=>{
-    call.answer(stream);
-      const vid = document.getElementById('userVideo');
-    call.on('stream' , userStream=>{
-      addVideo(vid , userStream);
+
+  // Display local video stream in the local video element
+  addVideo(myvideo, stream);  // `myvideo` is the local video element
+
+  // Listen for an incoming call from another peer
+  peer.on('call', (call) => {
+    // Answer the call with the local audio and video stream
+    call.answer(stream);  // Send both audio and video to the caller
+
+    // Create a video element for the remote peer
+    const vid = document.getElementById('userVideo');  // `userVideo` is the remote video element
+
+    // When the remote peer's media stream arrives
+    call.on('stream', (userStream) => {
+      // Add the remote stream (both audio and video) to the video element
+      addVideo(vid, userStream);
       startTimer();
-    })
-    call.on('error' , (err)=>{
-      alert(err)
-    })
+    });
+
+    // Handle any errors during the call
+    call.on('error', (err) => {
+      alert(err);
+    });
+
+    // Remove the video element when the call is closed
     call.on("close", () => {
-        console.log(vid);
-        vid.remove();
-    })
+      vid.remove();
+    });
+
+    // Store the call object for future reference or cleanup
     peerConnections[call.peer] = call;
-  })
-}).catch(err=>{
-    alert(err.message)
-})
-peer.on('open' , (id)=>{
+  });
+}).catch((err) => {
+  // Handle any errors in accessing the media devices
+  alert(err.message);
+});
+
+// When the peer connection is opened
+peer.on('open', (id) => {
   myId = id;
-  socket.emit("newUser", id, roomID);
-})
-peer.on('error' , (err)=>{
+  socket.emit("newUser", id, roomID);  // Notify the server of the new user
+});
+
+// Handle any errors in the peer connection
+peer.on('error', (err) => {
   alert(err.type);
 });
 socket.on('userJoined' , id=>{
