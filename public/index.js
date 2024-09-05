@@ -194,3 +194,13 @@ chatForm.addEventListener('submit', (event) => {
 
 });
 
+const endCallButton = document.getElementById('end-button')
+
+endCallButton.addEventListener('click', ()=>{
+  if (window.opener) {
+    window.close();
+  } else {
+    window.location.href = "https://serene-ivory.vercel.app/";  // Replace with your desired URL
+  }
+})
+
